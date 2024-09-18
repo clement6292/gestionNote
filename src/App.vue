@@ -1,15 +1,16 @@
 <template>
-  <div class="container">
+   <div class="container">
     <input type="search" placeholder="Rechercher une note">
     <h1>Gestion de Notes</h1>
     <input v-model="newNote" placeholder="Ajouter une note" />
+    <input v-model="newCategory" placeholder="Ajouter une catégorie" />
     <button @click="isEditing ? updateNote() : addNewNote()">
       {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
     </button>
 
     <ul>
       <li v-for="(note, index) in notes" :key="index">
-        {{ note }}
+        {{ note.text }} ({{ note.category }})
         <div>
           <button class="edit" @click="editNote(index)">Modifier</button>
           <button class="delete" @click="removeNote(index)">Supprimer</button>
@@ -19,23 +20,20 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
+<script setup>import { ref } from 'vue';
 import { useNotesStore } from './stores/notesStore';
 
-// Créer une instance du store
 const store = useNotesStore();
-
-// Déclarer les variables réactives
 const newNote = ref('');
+const newCategory = ref('');
 const isEditing = ref(false);
 const currentIndex = ref(null);
 
-// Fonctions
 const addNewNote = () => {
-  if (newNote.value) {
-    store.addNote(newNote.value);
+  if (newNote.value && newCategory.value) {
+    store.addNote({ text: newNote.value, category: newCategory.value });
     newNote.value = '';
+    newCategory.value = '';
   }
 };
 
@@ -44,21 +42,22 @@ const removeNote = (index) => {
 };
 
 const editNote = (index) => {
-  newNote.value = store.notes[index]; // Charge la note à modifier
+  newNote.value = store.notes[index].text;
+  newCategory.value = store.notes[index].category;
   isEditing.value = true;
-  currentIndex.value = index; // Conserve l'index de la note à modifier
+  currentIndex.value = index;
 };
 
 const updateNote = () => {
-  if (newNote.value && currentIndex.value !== null) {
-    store.updateNote(currentIndex.value, newNote.value);
+  if (newNote.value && newCategory.value && currentIndex.value !== null) {
+    store.updateNote(currentIndex.value, { text: newNote.value, category: newCategory.value });
     newNote.value = '';
+    newCategory.value = '';
     isEditing.value = false;
-    currentIndex.value = null; // Réinitialiser après la mise à jour
+    currentIndex.value = null;
   }
 };
 
-// Exposer les données et fonctions
 const notes = store.notes;
 </script>
 
