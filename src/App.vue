@@ -1,38 +1,44 @@
 <template>
-   <div class="container">
+  <div class="container">
     <input type="search" placeholder="Rechercher une note">
     <h1>Gestion de Notes</h1>
-    <input v-model="newNote" placeholder="Ajouter une note" />
+    <input v-model="newTitle" placeholder="Ajouter un titre" />
+    <input v-model="newText" placeholder="Ajouter une note" />
     <input v-model="newCategory" placeholder="Ajouter une catégorie" />
     <button @click="isEditing ? updateNote() : addNewNote()">
       {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
     </button>
 
-    <ul>
-      <li v-for="(note, index) in notes" :key="index">
-        {{ note.text }} ({{ note.category }})
+    
+
+  </div>
+      <div v-for="(note, index) in notes" :key="index" class="bloc">
+        <h1>{{ note.title }}</h1>  
+        <p>{{ note.text }}</p>
+        <p>( {{ note.category }})</p>
         <div>
           <button class="edit" @click="editNote(index)">Modifier</button>
           <button class="delete" @click="removeNote(index)">Supprimer</button>
         </div>
-      </li>
-    </ul>
-  </div>
+      </div>
 </template>
 
-<script setup>import { ref } from 'vue';
+<script setup>
+import { ref } from 'vue';
 import { useNotesStore } from './stores/notesStore';
 
 const store = useNotesStore();
-const newNote = ref('');
+const newTitle = ref('');
+const newText = ref('');
 const newCategory = ref('');
 const isEditing = ref(false);
 const currentIndex = ref(null);
 
 const addNewNote = () => {
-  if (newNote.value && newCategory.value) {
-    store.addNote({ text: newNote.value, category: newCategory.value });
-    newNote.value = '';
+  if (newTitle.value && newText.value && newCategory.value) {
+    store.addNote({ title: newTitle.value, text: newText.value, category: newCategory.value });
+    newTitle.value = '';
+    newText.value = '';
     newCategory.value = '';
   }
 };
@@ -42,16 +48,18 @@ const removeNote = (index) => {
 };
 
 const editNote = (index) => {
-  newNote.value = store.notes[index].text;
+  newTitle.value = store.notes[index].title;
+  newText.value = store.notes[index].text;
   newCategory.value = store.notes[index].category;
   isEditing.value = true;
   currentIndex.value = index;
 };
 
 const updateNote = () => {
-  if (newNote.value && newCategory.value && currentIndex.value !== null) {
-    store.updateNote(currentIndex.value, { text: newNote.value, category: newCategory.value });
-    newNote.value = '';
+  if (newTitle.value && newText.value && newCategory.value && currentIndex.value !== null) {
+    store.updateNote(currentIndex.value, { title: newTitle.value, text: newText.value, category: newCategory.value });
+    newTitle.value = '';
+    newText.value = '';
     newCategory.value = '';
     isEditing.value = false;
     currentIndex.value = null;
@@ -60,6 +68,7 @@ const updateNote = () => {
 
 const notes = store.notes;
 </script>
+
 
 <style>
 body {
@@ -101,6 +110,7 @@ button {
   font-size: 16px;
   cursor: pointer;
   margin-right: 5px;
+
 }
 
 button:hover {
@@ -138,6 +148,17 @@ button.edit {
 
 button.edit:hover {
   background-color: #0069d9;
+}
+
+p{
+  text-align: center;
+}
+.bloc{
+  border: 1px solid;
+  box-shadow: 2px 2px 2px;
+  margin: 5px;
+  padding: auto;
+  border-radius: 5px;
 }
 </style>
 
